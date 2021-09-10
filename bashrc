@@ -9,10 +9,14 @@ GIT_PS1_SHOWUPSTREAM='auto'
 PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
 PAGER='less'
 LESS='-r'
+EDITOR='nvim'
+VISUAL='nvim'
+SUBSHELLCMDS='/tmp/.subshellcmds'
+PROMPT_COMMAND="test -f $SUBSHELLCMDS && source $SUBSHELLCMDS && rm $SUBSHELLCMDS"
 
 alias -- -='set -x'
 alias -- +='set +x'
-alias .b='echo source ~/bashrc; source ~/bashrc'
+alias .b='echo source ~/dotfiles/bashrc; source ~/dotfiles/bashrc'
 alias ag='clear; alias | grep git'
 alias al='clear; alias'
 alias b='echo \> pushd \- \; "$AUTOLS"; builtin pushd - > /dev/null; $AUTOLS'
@@ -28,6 +32,7 @@ alias gd1='clear; git diff HEAD~1'
 alias gd2='clear; git diff HEAD~2'
 alias gd='clear; git diff'
 alias gg='clear; git log --pretty="%C(Yellow)%h  (%C(Green)%cr%C(reset))%x09 %C(Cyan)%an: %C(reset)%s" -7'
+alias ggg='clear; git log --graph --oneline --decorate'
 alias ggd='clear; git log --pretty="%C(Yellow)%h %C(reset)%ad (%C(Green)%cr%C(reset))%x09 %C(Cyan)%an: %C(reset)%s" -7'
 alias gh='git push'
 alias git='git'
@@ -154,10 +159,9 @@ function command_not_found_handle {
 		#	echo NOTE: no match found for $1 in $DIRS_HISTORY	
 		#fi
 		if [ $MATCHCOUNT -eq 1 ]; then
-			echo "cd $MATCH" > /tmp/.cd
-			echo \> pushd "$MATCH" \; ls -F
-			eval pushd "$MATCH" > /dev/null
-			eval "$AUTOLSA"
+			echo builtin cd "$MATCH"  >  $SUBSHELLCMDS
+			echo "echo \> $AUTOLS"   >>  $SUBSHELLCMDS
+			echo "$AUTOLS"           >>  $SUBSHELLCMDS
 			return
 		fi
 		if [ $MATCHCOUNT -gt 1 ]; then
@@ -165,7 +169,7 @@ function command_not_found_handle {
 			DIRS=$(echo "$DIRS" | grep "$1")
 			for dir in $DIRS; do
 				printf "%3d %s\n" $i $dir
-				alias $i=$dir
+				echo alias $i=$dir >> $SUBSHELLCMDS
 				let "i++"
 			done
 			return
