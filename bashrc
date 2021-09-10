@@ -125,7 +125,7 @@ function gma {
 	eval git commit --amend -m \"$@\"
 }
 function gac {
-	echo git commit -am \"$@\"
+	echo \> git commit -am \"$@\"
 	eval git commit -am \"$@\"
 }
 function gdh {
